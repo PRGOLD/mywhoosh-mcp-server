@@ -2,7 +2,7 @@
     "mcpServers": {
       "mywhoosh-mcp-server": {
         "command": "node",
-        "args": ["C:\\Users\\admin\\Desktop\\mywhoosh-mcp-server\\build\\index.js"],
+        "args": ["PATH_TO_PROJECT\\build\\index.js"],
         "env": {
           "MYWHOOSH_USERNAME": "${input:mywhoosh-username}",
           "MYWHOOSH_PASSWORD": "${input:mywhoosh-password}"
