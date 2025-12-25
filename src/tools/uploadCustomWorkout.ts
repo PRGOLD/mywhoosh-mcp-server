@@ -93,9 +93,7 @@ export async function handler(
     const whooshId = extra.client.getWhooshId();
     if (!whooshId) throw new McpError(-32600, 'Not authenticated');
 
-    // Transform workouts to include WorkoutSteps object map and WorkoutstepsTMap
     const workoutsData = args.workouts.map(workout => {
-      // Create WorkoutSteps object map from WorkoutStepsArray
       const workoutSteps: Record<string, any> = {};
       workout.WorkoutStepsArray.forEach(step => {
         workoutSteps[step.Id.toString()] = step;
