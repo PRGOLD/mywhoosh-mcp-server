@@ -27,10 +27,12 @@
   "homepage": "https://github.com/mywhoosh-community/mywhoosh-mcp-server#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.1",
+    "adm-zip": "^0.5.16",
     "dotenv": "^17.2.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
     "@types/node": "^25.0.3",
     "typescript": "^5.9.3"
   }
