@@ -25,7 +25,7 @@ const workoutStepSchema = z.object({
 });
 
 const workoutSchema = z.object({
-  Id: z.number().describe('Unique workout ID (use timestamp or random large number, e.g., 176540733485)'),
+  Id: z.number().describe('Unique workout ID. For NEW workouts: use timestamp or random large number (e.g., 176540733485). For UPDATING existing workouts: use the same ID as the original workout.'),
   Name: z.string().describe('Workout name'),
   Description: z.string().default('').describe('Workout description'),
   Mode: z.string().default('E_Ride').describe('Workout mode (use E_Ride for cycling)'),
@@ -56,7 +56,17 @@ const workoutSchema = z.object({
 });
 
 export const method = 'uploadCustomWorkout';
-export const description = `Upload custom cycling workouts to MyWhoosh. 
+export const description = `Upload or update custom cycling workouts to MyWhoosh. 
+
+CREATING NEW WORKOUTS:
+- Use a new unique workout ID (timestamp or random large number)
+- Define all workout properties and steps
+
+UPDATING EXISTING WORKOUTS:
+- Use the same workout ID as the existing workout
+- Include all workout properties (changed and unchanged)
+- Only modify the fields you want to update (e.g., Name, Description, WorkoutStepsArray)
+- Keep other fields the same as the original workout
 
 WORKOUT STRUCTURE:
 - Each workout consists of multiple steps (WorkoutStepsArray)

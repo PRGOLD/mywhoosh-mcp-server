@@ -4,20 +4,44 @@ import { MyWhooshClient } from '../clients/mywhoosh.js';
 import { asMcpError, McpError } from './utils/toolHelpers.js';
 
 export const method = 'createTask';
-export const description = 'Create a calendar task (event, workout, etc.).';
+export const description = `Create a calendar task to schedule events, workouts, or free rides.
+
+TASK TYPES:
+- E_Event: Schedule a group event (use event UUID as taskTypeId)
+- E_Simple_Workout: Schedule any workout (custom or standard, use workout ID as taskTypeId)
+- E_FreeRide: Schedule a free ride session
+
+SCHEDULING WORKOUTS:
+- Use TaskType: "E_Simple_Workout" (for both custom and standard workouts)
+- Set TaskTypeId to the workout ID (from uploadCustomWorkout or standard workout ID)
+- TaskStartedTimeEpoc: Unix timestamp when workout should start
+- TaskEndEpochTime: Unix timestamp when workout should end (start + duration)
+- Include workout details like Name, Description, TSS
+
+EXAMPLE - Schedule Workout:
+{
+  "taskType": "E_Simple_Workout",
+  "taskStartedTimeEpoc": 1735200000,
+  "taskTypeId": "176540733485",
+  "taskName": "Interval Power Builder",
+  "taskDescription": "Intensive interval training",
+  "tss": 65
+}`;
+
 export const parameters = z.object({
-  taskType: z.enum(['E_Event', 'E_Workout', 'E_FreeRide']).describe('Type of task'),
-  taskStartedTimeEpoc: z.number().describe('Start time as Unix timestamp'),
-  taskTypeId: z.string().describe('ID of the event/workout'),
-  curDayId: z.string().optional().describe('Day ID for multi-day events'),
-  taskName: z.string().describe('Name of the task'),
+  taskType: z.enum(['E_Event', 'E_Simple_Workout', 'E_FreeRide']).describe('Type of task: E_Event (group event), E_Simple_Workout (any workout - custom or standard), E_FreeRide (free ride)'),
+  taskStartedTimeEpoc: z.number().describe('Start time as Unix timestamp (seconds since 1970-01-01)'),
+  taskTypeId: z.string().describe('ID of the event/workout. For workouts: use the workout Id. For events: use event UUID.'),
+  taskEndEpochTime: z.number().optional().describe('End time as Unix timestamp. If not provided, defaults to start time. For workouts: start time + workout duration.'),
+  curDayId: z.string().optional().describe('Day ID for multi-day events (leave empty for single tasks)'),
+  taskName: z.string().describe('Name of the task/workout'),
   taskDescription: z.string().default('').describe('Description of the task'),
-  totalKilometers: z.number().default(0).describe('Total distance in km'),
-  totalElevation: z.number().default(0).describe('Total elevation in meters'),
+  totalKilometers: z.number().default(0).describe('Total distance in km (0 for workouts)'),
+  totalElevation: z.number().default(0).describe('Total elevation in meters (0 for workouts)'),
   tss: z.number().default(0).describe('Training Stress Score'),
-  sportMode: z.string().default('E_Cycling').describe('Sport mode'),
-  mapId: z.number().default(0).describe('Map/World ID'),
-  dayNo: z.number().default(0).describe('Day number for multi-day events'),
+  sportMode: z.string().default('E_Cycling').describe('Sport mode (E_Cycling for cycling)'),
+  mapId: z.number().default(0).describe('Map/World ID (0 for workouts)'),
+  dayNo: z.number().default(0).describe('Day number for multi-day events (0 for single tasks)'),
 });
 
 export async function handler(
@@ -25,6 +49,8 @@ export async function handler(
   extra: { client: MyWhooshClient }
 ): Promise<CallToolResult> {
   try {
+    const endTime = args.taskEndEpochTime || args.taskStartedTimeEpoc;
+    
     const result = await extra.client.post('/task/create', {
       baseUrl: 'SERVICE14',
       body: JSON.stringify({
@@ -35,7 +61,7 @@ export async function handler(
         CurDayId: args.curDayId || '',
         TaskState: 'E_NotStarted',
         DayNo: args.dayNo,
-        TaskEndEpochTime: args.taskStartedTimeEpoc,
+        TaskEndEpochTime: endTime,
         MapId: args.mapId,
         TaskName: args.taskName,
         TaskDescription: args.taskDescription,
