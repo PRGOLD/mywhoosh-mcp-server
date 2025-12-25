@@ -1,10 +1,6 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const packageJson = require('../package.json');
-
-export const SERVER_NAME = packageJson.name;
-export const APP_VERSION = packageJson.version;
-export const USER_AGENT = `${packageJson.name}/${packageJson.version}`;
+export const SERVER_NAME = 'mywhoosh-mcp-server';
+export const APP_VERSION = '1.0.0';
+export const USER_AGENT = `${SERVER_NAME}/${APP_VERSION}`;
 
 export const BASE_URLS = {
   MAIN: 'https://services.mywhoosh.com/http-service/v1',

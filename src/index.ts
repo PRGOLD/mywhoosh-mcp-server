@@ -81,7 +81,7 @@ async function run() {
   }
 
   for (const tool of tools) {
-    server.tool(tool.method, tool.description, tool.parameters.shape, async (args) => {
+    server.tool(tool.method, tool.description, tool.parameters.shape, async (args: Record<string, unknown>) => {
       log('info', `Tool invocation: ${tool.method}`);
       try {
         return await tool.handler(args, { client });
